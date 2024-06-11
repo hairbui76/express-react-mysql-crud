@@ -59,6 +59,17 @@ const routes = (app) => {
 		return res.send(Buffer.from(image.data, "binary"));
 	});
 
+	app.get("/file/:id/del", async (req, res) => {
+		const image = await Image.findByPk(req.params.id);
+		if (!image) return res.send("Image not found.");
+		await image.destroy();
+		const imageInfo = await ImageInfo.findOne({
+			where: { imageId: req.params.id },
+		});
+		await imageInfo.destroy();
+		res.send("Image deleted successfully.");
+	});
+
 	app.get("/info/:id", async (req, res) => {
 		const imageInfo = await ImageInfo.findByPk(req.params.id);
 		if (!imageInfo) return res.send("Image info not found.");

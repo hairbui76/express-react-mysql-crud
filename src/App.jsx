@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ImageModal from "./ImageModal";
 import OpenImageModal from "./OpenImageModal";
-import { EyeFilled } from "@ant-design/icons";
+import { DeleteFilled, EyeFilled } from "@ant-design/icons";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import ImageView from "./ImageView";
 
 const fetchAllFiles = () =>
 	fetch(`${import.meta.env.VITE_API_ENDPOINT}/files`).then(async (response) => {
@@ -14,7 +16,7 @@ const fetchAllFiles = () =>
 		return response.json();
 	});
 
-const App = () => {
+const _App = () => {
 	const [files, setFiles] = useState([]);
 	const [open, setOpen] = useState(false);
 	const [openImage, setOpenImage] = useState(false);
@@ -46,13 +48,28 @@ const App = () => {
 			title: "View",
 			render: (_, record) => {
 				return (
-					<Button
-						icon={<EyeFilled />}
-						type="primary"
-						onClick={() => {
-							setOpenImage(true);
-							setSelectId(record.id);
-						}}></Button>
+					<Flex gap={10}>
+						<Link to={`/${record.id}`}>
+							<Button
+								icon={<EyeFilled />}
+								type="primary"
+								onClick={() => {
+									setSelectId(record.id);
+								}}
+							/>
+						</Link>
+						<Button
+							icon={<DeleteFilled />}
+							onClick={async () => {
+								await fetch(
+									`${import.meta.env.VITE_API_ENDPOINT}/file/${record.id}/del`
+								);
+								window.location.reload();
+							}}
+							type="primary"
+							danger
+						/>
+					</Flex>
 				);
 			},
 		},
@@ -79,6 +96,17 @@ const App = () => {
 				/>
 			</Space>
 		</>
+	);
+};
+
+const App = () => {
+	return (
+		<BrowserRouter>
+			<Routes>
+				<Route path="/" element={<_App />} />
+				<Route path="/:id" element={<ImageView />} />
+			</Routes>
+		</BrowserRouter>
 	);
 };
 
