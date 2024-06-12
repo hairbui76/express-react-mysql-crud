@@ -45,6 +45,21 @@ const _App = () => {
 			key: "description",
 		},
 		{
+			title: "Download Url",
+			dataIndex: "url",
+			key: "url",
+			render: (url, record) => {
+				return (
+					<Flex justify="space-between">
+						<span>{url}</span>
+						<Button type="primary" href={record.realUrl}>
+							Download
+						</Button>
+					</Flex>
+				);
+			},
+		},
+		{
 			title: "View",
 			render: (_, record) => {
 				return (

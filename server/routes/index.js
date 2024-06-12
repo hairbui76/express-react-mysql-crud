@@ -1,8 +1,7 @@
 const multer = require("multer");
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ dest: "uploads/" });
 const db = require("../models");
-const { Blob } = require("buffer");
+const { uploadToFirebaseStorage } = require("../gcpStorage");
 const Image = db.image;
 const ImageInfo = db.imageInfo;
 
@@ -18,18 +17,27 @@ const routes = (app) => {
 				id: images[i].id,
 				name: imageInfos[i].name,
 				description: imageInfos[i].description,
+				url: `${imageInfos[i].url.slice(0, 100)}...`,
+				realUrl: imageInfos[i].url,
 			});
 		}
 		res.send(files);
 	});
 
 	app.post("/upload", upload.single("image"), async (req, res) => {
+		const result = await uploadToFirebaseStorage(
+			req.file.path,
+			req.file.originalname,
+			req.file.mimetype
+		);
+
 		const image = await Image.create({
 			data: req.file.buffer,
 		});
 
 		const imageInfo = await ImageInfo.create({
 			imageId: image.id,
+			url: result,
 			type: req.file.mimetype,
 			name: req.file.originalname,
 			description: req.body.description,
