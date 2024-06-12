@@ -23,6 +23,19 @@ const uploadToFirebaseStorage = async (filepath, fileName, mimetype) => {
 	}
 };
 
+const deleteFileOnFirebaseStorage = async (filename) => {
+	try {
+		const gcs = gcpStorage.bucket("21020191-bucket"); // Removed "gs://" from the bucket name
+		const storagepath = `storage_folder/${filename}`;
+		await gcs.file(storagepath).delete();
+		return true;
+	} catch (error) {
+		console.log(error);
+		throw new Error(error.message);
+	}
+};
+
 module.exports = {
 	uploadToFirebaseStorage,
+	deleteFileOnFirebaseStorage,
 };

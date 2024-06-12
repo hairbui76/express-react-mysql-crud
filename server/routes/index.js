@@ -1,7 +1,10 @@
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const db = require("../models");
-const { uploadToFirebaseStorage } = require("../gcpStorage");
+const {
+	uploadToFirebaseStorage,
+	deleteFileOnFirebaseStorage,
+} = require("../gcpStorage");
 const Image = db.image;
 const ImageInfo = db.imageInfo;
 
@@ -74,6 +77,7 @@ const routes = (app) => {
 		const imageInfo = await ImageInfo.findOne({
 			where: { imageId: req.params.id },
 		});
+		await deleteFileOnFirebaseStorage(imageInfo.name);
 		await imageInfo.destroy();
 		res.send("Image deleted successfully.");
 	});
